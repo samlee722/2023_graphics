@@ -32,64 +32,63 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// initialization 관련 변수 및 함수
 ////////////////////////////////////////////////////////////////////////////////
-GLFWwindow* createWindow(int width, int height, const char* title);
-void init_window(GLFWwindow* window);
-bool init_scene(const std::string& filename);
+GLFWwindow *createWindow(int width, int height, const char *title);
+void init_window(GLFWwindow *window);
+bool init_scene(const std::string &filename);
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
 /// 쉐이더 관련 변수 및 함수
 ////////////////////////////////////////////////////////////////////////////////
-GLuint  program;          // 쉐이더 프로그램 객체의 레퍼런스 값
-GLint   loc_a_position;   // attribute 변수 a_position 위치
-GLint   loc_a_color;      // attribute 변수 a_color 위치
+GLuint program;       // 쉐이더 프로그램 객체의 레퍼런스 값
+GLint loc_a_position; // attribute 변수 a_position 위치
+GLint loc_a_color;    // attribute 변수 a_color 위치
 
-GLint   loc_u_PVM;        // uniform 변수 u_PVM 위치
+GLint loc_u_PVM; // uniform 변수 u_PVM 위치
 
-GLuint  position_buffer;  // GPU 메모리에서 position_buffer의 위치
-GLuint  color_buffer;     // GPU 메모리에서 color_buffer의 위치
-GLuint  index_buffer;     // GPU 메모리에서 index_buffer의 위치
+GLuint position_buffer; // GPU 메모리에서 position_buffer의 위치
+GLuint color_buffer;    // GPU 메모리에서 color_buffer의 위치
+GLuint index_buffer;    // GPU 메모리에서 index_buffer의 위치
 
-GLuint create_shader_from_file(const std::string& filename, GLuint shader_type);
+GLuint create_shader_from_file(const std::string &filename, GLuint shader_type);
 void init_shader_program();
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
 /// 렌더링 관련 변수 및 함수
 ////////////////////////////////////////////////////////////////////////////////
-const aiScene* scene;             // scene
+const aiScene *scene; // scene
 
-std::vector<Camera> g_cameras;    // cameras in the scene
-std::vector<Object> g_objects;    // objects in the scene
+std::vector<Camera> g_cameras; // cameras in the scene
+std::vector<Object> g_objects; // objects in the scene
 
 int g_cam_select_idx = 0;
 int g_obj_select_idx = 0;
 
-bool load_asset(const std::string& filename);
-void render_scene();              // rendering 함수: Scene의 물체(삼각형)를 렌더링하는 함수.
-void render(GLFWwindow* window);
+bool load_asset(const std::string &filename);
+void render_scene(); // rendering 함수: Scene의 물체(삼각형)를 렌더링하는 함수.
+void render(GLFWwindow *window);
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
 /// IMGUI / keyboard / scroll input 관련 변수 및 함수
 ////////////////////////////////////////////////////////////////////////////////
-ImFont* font = NULL;
+ImFont *font = NULL;
 std::string font_path = "../../../../third_party/fonts/NotoSansKR/NotoSansKR-Regular.otf";
 float font_size_pixels = 18.0f;
 bool is_font_loaded = false;
 
-void init_imgui(GLFWwindow* window);
-void compose_imgui_frame(GLFWwindow* window, int key, int scancode, int action, int mods);
+void init_imgui(GLFWwindow *window);
+void compose_imgui_frame(GLFWwindow *window, int key, int scancode, int action, int mods);
 
 void key_callback();
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void scroll_callback(GLFWwindow* window, double x, double y);
+void framebuffer_size_callback(GLFWwindow *window, int width, int height);
+void scroll_callback(GLFWwindow *window, double x, double y);
 ////////////////////////////////////////////////////////////////////////////////
 
-
-GLFWwindow* createWindow(int width, int height, const char* title)
+GLFWwindow *createWindow(int width, int height, const char *title)
 {
-  GLFWwindow* window; // create window
+  GLFWwindow *window; // create window
 
   // Initialize GLFW Library
   if (!glfwInit())
@@ -104,7 +103,7 @@ GLFWwindow* createWindow(int width, int height, const char* title)
   }
 
   // Make the current OpenGL contexts as one in the window
-  glfwMakeContextCurrent(window); 
+  glfwMakeContextCurrent(window);
 
   // Initialize GLEW library
   if (glewInit() != GLEW_OK)
@@ -118,33 +117,33 @@ GLFWwindow* createWindow(int width, int height, const char* title)
   return window;
 }
 
-void scroll_callback(GLFWwindow* window, double x, double y)
+void scroll_callback(GLFWwindow *window, double x, double y)
 {
-  Camera& camera = g_cameras[g_cam_select_idx];
+  Camera &camera = g_cameras[g_cam_select_idx];
 
   if (camera.mode() == Camera::kPerspective)
   {
     float fovy = camera.fovy();
-    fovy += y*2.f;
+    fovy += y * 2.f;
     camera.set_fovy(fovy);
   }
   else if (camera.mode() == Camera::kOrtho)
   {
     float ortho_scale = camera.ortho_scale();
-    ortho_scale += y*0.2f;
+    ortho_scale += y * 0.2f;
     camera.set_ortho_scale(ortho_scale);
   }
 }
 
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
-  Object& object = g_objects[g_obj_select_idx];
+  Object &object = g_objects[g_obj_select_idx];
 
   glm::vec3 translate = object.get_translate();
   glm::vec3 scale = object.get_scale();
-  
+
   // move left
-  if (key == GLFW_KEY_H && action == GLFW_PRESS) 
+  if (key == GLFW_KEY_H && action == GLFW_PRESS)
     translate[0] -= 0.1f;
   // mode right
   if (key == GLFW_KEY_L && action == GLFW_PRESS)
@@ -152,7 +151,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
   // move up
   if (key == GLFW_KEY_K && action == GLFW_PRESS)
     translate[1] += 0.1f;
-  // move down 
+  // move down
   if (key == GLFW_KEY_J && action == GLFW_PRESS)
     translate[1] -= 0.1f;
 
@@ -161,17 +160,16 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     scale += 0.1f;
   if (key == GLFW_KEY_MINUS && action == GLFW_PRESS)
     scale -= 0.1f;
-  
+
   object.set_translate(translate);
   object.set_scale(scale);
 
-
   // camera extrinsic parameter
-  Camera& camera = g_cameras[g_cam_select_idx];
+  Camera &camera = g_cameras[g_cam_select_idx];
 
   if (key == GLFW_KEY_A && action == GLFW_PRESS)
     camera.move_left(0.1f);
-  if (key == GLFW_KEY_D && action ==GLFW_PRESS)
+  if (key == GLFW_KEY_D && action == GLFW_PRESS)
     camera.move_right(0.1f);
   if (key == GLFW_KEY_W && action == GLFW_PRESS)
     camera.move_forward(0.1f);
@@ -179,16 +177,15 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     camera.move_backward(0.1f);
 }
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
-  Camera& camera = g_cameras[g_cam_select_idx];
+  Camera &camera = g_cameras[g_cam_select_idx];
 
-  camera.set_aspect((float) width / (float) height);
+  camera.set_aspect((float)width / (float)height);
   glViewport(0, 0, width, height);
 }
 
-
-void init_window(GLFWwindow* window) 
+void init_window(GLFWwindow *window)
 {
   init_imgui(window);
   init_shader_program();
@@ -202,10 +199,10 @@ void init_window(GLFWwindow* window)
   glfwSetScrollCallback(window, scroll_callback);
 }
 
-bool init_scene(const std::string& filename)
+bool init_scene(const std::string &filename)
 {
   std::ifstream fin(filename);
-  if (fin.fail()) 
+  if (fin.fail())
     return false;
 
   int count;
@@ -213,17 +210,16 @@ bool init_scene(const std::string& filename)
   for (int i = 0; i < count; i++)
   {
     std::string name;
-    glm::vec3   vec_scale, vec_translate;
+    glm::vec3 vec_scale, vec_translate;
 
     fin >> name;
     if (!load_asset(name))
-    { 
+    {
       std::cout << "Failed to load a asset file: " << name << std::endl;
       return -1;
     }
 
-    fin >> vec_scale[0] >> vec_scale[1] >> vec_scale[2] 
-        >> vec_translate[0] >> vec_translate[1] >> vec_translate[2];
+    fin >> vec_scale[0] >> vec_scale[1] >> vec_scale[2] >> vec_translate[0] >> vec_translate[1] >> vec_translate[2];
 
     g_objects[i].set_scale(vec_scale);
     g_objects[i].set_translate(vec_translate);
@@ -238,13 +234,11 @@ bool init_scene(const std::string& filename)
     float at_x, at_y, at_z;
     float up_x, up_y, up_z;
 
-    fin >> pos_x >> pos_y >> pos_z 
-        >> at_x >> at_y >> at_z 
-        >> up_x >> up_y >> up_z;
+    fin >> pos_x >> pos_y >> pos_z >> at_x >> at_y >> at_z >> up_x >> up_y >> up_z;
 
     glm::vec3 vec_cam_pos = glm::vec3(pos_x, pos_y, pos_z);
-    glm::vec3 vec_cam_at  = glm::vec3(at_x, at_y, at_z);
-    glm::vec3 vec_cam_up  = glm::vec3(up_x, up_y, up_z);
+    glm::vec3 vec_cam_at = glm::vec3(at_x, at_y, at_z);
+    glm::vec3 vec_cam_up = glm::vec3(up_x, up_y, up_z);
 
     Camera camera;
 
@@ -258,20 +252,21 @@ bool init_scene(const std::string& filename)
   return true;
 }
 
-void init_imgui(GLFWwindow* window) 
+void init_imgui(GLFWwindow *window)
 {
-  const char* glsl_version = "#version 120";
+  const char *glsl_version = "#version 120";
 
   // Setup Dear ImGui context
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
-  ImGuiIO& io = ImGui::GetIO(); (void)io;
-  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;   // Enable Keyboard Controls
-  io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;    // Enable Gamepad Controls
-  io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;       // Enable Docking
-  io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;     // Enable Multi-Viewport / Platform Windows
-  //io.ConfigViewportsNoAutoMerge = true;
-  //io.ConfigViewportsNoTaskBarIcon = true;
+  ImGuiIO &io = ImGui::GetIO();
+  (void)io;
+  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+  io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
+  io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     // Enable Docking
+  io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;   // Enable Multi-Viewport / Platform Windows
+  // io.ConfigViewportsNoAutoMerge = true;
+  // io.ConfigViewportsNoTaskBarIcon = true;
 
   // Setup Dear ImGui style
   ImGui::StyleColorsDark();
@@ -283,29 +278,55 @@ void init_imgui(GLFWwindow* window)
   font = io.Fonts->AddFontFromFileTTF(font_path.c_str(), font_size_pixels, NULL, io.Fonts->GetGlyphRangesKorean());
 }
 
+// bool load_asset(const std::string& filename)
+// {
+//   // TODO
 
-bool load_asset(const std::string& filename)
+//   const aiScene* curr_scene = aiImportFile(filename.c_str(), aiProcessPreset_TargetRealtime_MaxQuality);
+//   if (curr_scene != NULL)
+//   {
+//     for (unsigned int i = 0; i < curr_scene->mNumMeshes; ++i)
+//     {
+//       Object obj;
+
+//       obj = Object(curr_scene->mMeshes[i]);
+//       obj.init_buffer_objects();
+//       obj.set_name(filename.c_str());
+//       // object_names.push_back(filename.c_str());
+
+//       g_objects.push_back(obj);
+//     }
+//     return true;
+//   }
+//   else
+//     return false;
+// }
+
+bool load_asset(const std::string &filename)
 {
-  // TODO
-  
-  const aiScene* curr_scene = aiImportFile(filename.c_str(), aiProcessPreset_TargetRealtime_MaxQuality);
-  if (curr_scene != NULL)
+  const aiScene *scene = aiImportFile(filename.c_str(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+
+  if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
   {
-    for (unsigned int i = 0; i < curr_scene->mNumMeshes; ++i) 
-    {
-      Object obj;
-
-      obj = Object(curr_scene->mMeshes[i]);
-      obj.init_buffer_objects();
-      obj.set_name(filename.c_str());
-      // object_names.push_back(filename.c_str());
-
-      g_objects.push_back(obj);
-    }
-    return true;
-  }
-  else 
+    std::cout << "ERROR::ASSIMP:: " << aiGetErrorString() << std::endl;
     return false;
+  }
+
+  for (unsigned int i = 0; i < scene->mNumMeshes; i++)
+  {
+    // Process each mesh located at each scene node
+    // If node contains more than one mesh, then each mesh considered as object
+    Object obj(scene->mMeshes[i]);
+    obj.init_buffer_objects();
+    obj.set_name(filename.c_str());
+
+    g_objects.push_back(obj);
+  }
+
+  // Release the scene
+  aiReleaseImport(scene);
+
+  return true;
 }
 
 void compose_imgui_frame()
@@ -330,10 +351,11 @@ void compose_imgui_frame()
       ImGui::RadioButton(g_objects[i].get_name().c_str(), &g_obj_select_idx, i);
     }
 
-    Object& object = g_objects[g_obj_select_idx];
-    
+    Object &object = g_objects[g_obj_select_idx];
+
     glm::vec3 translate = object.get_translate();
-    glm::quat quat;   object.get_rotate(quat);
+    glm::quat quat;
+    object.get_rotate(quat);
     glm::vec3 scale = object.get_scale();
 
     ImGui::SliderFloat3("Tranlsate", glm::value_ptr(translate), -10.0f, 10.0f);
@@ -354,7 +376,7 @@ void compose_imgui_frame()
     ImGui::RadioButton("Camera 0", &g_cam_select_idx, 0);
     ImGui::RadioButton("Camera 1", &g_cam_select_idx, 1);
 
-    Camera& camera = g_cameras[g_cam_select_idx];
+    Camera &camera = g_cameras[g_cam_select_idx];
 
     ImGui::Text("Intrinsic Parameters");
     bool is_perspective = camera.mode() == Camera::kPerspective ? true : false;
@@ -377,14 +399,14 @@ void compose_imgui_frame()
 
     ImGui::Text("Extrinsic Parameters");
 
-    glm::quat   quat_cam;
-    glm::vec3   vec_cam_pos;
+    glm::quat quat_cam;
+    glm::vec3 vec_cam_pos;
 
     camera.get_pose(quat_cam, vec_cam_pos);
-    ImGui::SliderFloat3("Tranlsate", glm::value_ptr(vec_cam_pos), -10.0f, 10.0f);    
+    ImGui::SliderFloat3("Tranlsate", glm::value_ptr(vec_cam_pos), -10.0f, 10.0f);
     ImGui::gizmo3D("Rotation", quat_cam);
     camera.set_pose(quat_cam, vec_cam_pos);
-    
+
     ImGui::End();
   }
 
@@ -396,7 +418,7 @@ void compose_imgui_frame()
 }
 
 // GLSL 파일을 읽어서 컴파일한 후 쉐이더 객체를 생성하는 함수
-GLuint create_shader_from_file(const std::string& filename, GLuint shader_type)
+GLuint create_shader_from_file(const std::string &filename, GLuint shader_type)
 {
   GLuint shader = 0;
 
@@ -406,20 +428,20 @@ GLuint create_shader_from_file(const std::string& filename, GLuint shader_type)
   std::string shader_string;
 
   shader_string.assign(
-    (std::istreambuf_iterator<char>(shader_file)),
-    std::istreambuf_iterator<char>());
+      (std::istreambuf_iterator<char>(shader_file)),
+      std::istreambuf_iterator<char>());
 
   // Get rid of BOM in the head of shader_string
   // Because, some GLSL compiler (e.g., Mesa Shader compiler) cannot handle UTF-8 with BOM
-  if (shader_string.compare(0, 3, "\xEF\xBB\xBF") == 0)  // Is the file marked as UTF-8?
+  if (shader_string.compare(0, 3, "\xEF\xBB\xBF") == 0) // Is the file marked as UTF-8?
   {
     std::cout << "Shader code (" << filename << ") is written in UTF-8 with BOM" << std::endl;
     std::cout << "  When we pass the shader code to GLSL compiler, we temporarily get rid of BOM" << std::endl;
-    shader_string.erase(0, 3);                  // Now get rid of the BOM.
+    shader_string.erase(0, 3); // Now get rid of the BOM.
   }
 
-  const GLchar* shader_src = shader_string.c_str();
-  glShaderSource(shader, 1, (const GLchar * *)& shader_src, NULL);
+  const GLchar *shader_src = shader_string.c_str();
+  glShaderSource(shader, 1, (const GLchar **)&shader_src, NULL);
   glCompileShader(shader);
 
   GLint is_compiled;
@@ -446,14 +468,12 @@ GLuint create_shader_from_file(const std::string& filename, GLuint shader_type)
 // vertex shader와 fragment shader를 링크시켜 program을 생성하는 함수
 void init_shader_program()
 {
-  GLuint vertex_shader
-    = create_shader_from_file("./shader/vertex.glsl", GL_VERTEX_SHADER);
+  GLuint vertex_shader = create_shader_from_file("./shader/vertex.glsl", GL_VERTEX_SHADER);
 
   std::cout << "vertex_shader id: " << vertex_shader << std::endl;
   assert(vertex_shader != 0);
 
-  GLuint fragment_shader
-    = create_shader_from_file("./shader/fragment.glsl", GL_FRAGMENT_SHADER);
+  GLuint fragment_shader = create_shader_from_file("./shader/fragment.glsl", GL_FRAGMENT_SHADER);
 
   std::cout << "fragment_shader id: " << fragment_shader << std::endl;
   assert(fragment_shader != 0);
@@ -495,25 +515,37 @@ void render_scene()
   glm::mat4 mat_model, mat_view, mat_proj, mat_PVM;
 
   // set transform
-  const Camera& camera = g_cameras[g_cam_select_idx];
+  const Camera &camera = g_cameras[g_cam_select_idx];
 
   // TODO : set transform using the current camera
-  mat_view = glm::mat4(1.0f); // <- TODO
-  mat_proj = glm::mat4(1.0f); // <- TODO
+  mat_view = camera.view_matrix();
+  mat_proj = camera.proj_matrix();
 
   // 특정 쉐이더 프로그램 사용
   glUseProgram(program);
 
   for (std::size_t i = 0; i < g_objects.size(); ++i)
   {
-    // TODO : draw each object
+    const Object &obj = g_objects[i];
+
+    // Set model matrix for this object
+    mat_model = obj.model_matrix();
+
+    // Calculate model-view-projection matrix
+    mat_PVM = mat_proj * mat_view * mat_model;
+
+    // Pass this matrix to shader
+    glUniformMatrix4fv(loc_u_PVM, 1, GL_FALSE, glm::value_ptr(mat_PVM));
+
+    // Draw the object
+    obj.draw(loc_a_position, loc_a_color);
   }
 
   // 쉐이더 프로그램 사용해제
   glUseProgram(0);
 }
 
-void render(GLFWwindow* window) 
+void render(GLFWwindow *window)
 {
   glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -529,10 +561,11 @@ void render(GLFWwindow* window)
   // Update and Render additional Platform Windows
   // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
   //  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
-  ImGuiIO& io = ImGui::GetIO(); (void)io;
+  ImGuiIO &io = ImGui::GetIO();
+  (void)io;
   if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
   {
-    GLFWwindow* backup_current_context = glfwGetCurrentContext();
+    GLFWwindow *backup_current_context = glfwGetCurrentContext();
     ImGui::UpdatePlatformWindows();
     ImGui::RenderPlatformWindowsDefault();
     glfwMakeContextCurrent(backup_current_context);
@@ -545,11 +578,10 @@ void render(GLFWwindow* window)
   glfwPollEvents();
 }
 
-
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
   // create window
-  GLFWwindow* window = createWindow(1000, 1000, "Hello Assimp");
+  GLFWwindow *window = createWindow(1000, 1000, "Hello Assimp");
 
   // initialize window
   init_window(window);
